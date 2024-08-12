@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import axios from 'axios';
 
 import {
@@ -8,7 +8,6 @@ import {
   HStack,
   Link,
   Text,
-  Input,
   FormControl,
   Textarea,
   Heading,
@@ -29,7 +28,6 @@ import { HamburgerIcon } from '@chakra-ui/icons';
 function App() {
 
   const [input, setInput] = useState('');
-  const [invalidInput, setInvalidInput] = useState(false);
   const [biasLabel, setBiasLabel] = useState("");
   const [biasScore, setBiasScore] = useState(null);
   const [loadingScore, setLoadingScore] = useState(false);
@@ -45,10 +43,9 @@ function App() {
     e.preventDefault();
 
     if (input === "") {
-      setInvalidInput(true);
+      console.log("Can't use empty text")
     } else {
 
-      setInvalidInput(false);
       setLoadingScore(true);
 
       
