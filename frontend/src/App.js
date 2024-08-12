@@ -12,40 +12,30 @@ import {
   FormControl,
   Textarea,
   Heading,
-  Image
+  Image,
+  Spinner,
+  useDisclosure,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
+  DrawerHeader,
+  IconButton
 } from '@chakra-ui/react'
-import { pipeline, env } from '@xenova/transformers';
-import { HfInference } from '@huggingface/inference';
+import { HamburgerIcon } from '@chakra-ui/icons';
 
 
 function App() {
 
   const [input, setInput] = useState('');
-  const [classifier, setClassifier] = useState(null);
   const [invalidInput, setInvalidInput] = useState(false);
+  const [biasLabel, setBiasLabel] = useState("");
+  const [biasScore, setBiasScore] = useState(null);
+  const [loadingScore, setLoadingScore] = useState(false);
 
-  const inference = new HfInference(process.env.REACT_APP_TOKEN);
-  const model = "AhadB/bias-detector";
+  const {isOpen, onOpen, onClose} = useDisclosure();
 
-
-  // Initialize the classifier once on component mount
-  // useEffect(() => {
-  //   async function initializePipeline() {
-  //     try {
-  //       env.allowLocalModels = false;
-  //       env.useBrowserCache = false;
-
-  //       let loadedClassifier = await pipeline('text-classification', 'google-bert/bert-base-uncased');
-  //       loadedClassifier = loadedClassifier.json();
-  //       setClassifier(loadedClassifier);
-  //     } catch (error) {
-  //       console.error('Error initializing pipeline:', error);
-  //     }
-  //   }
-  //   initializePipeline();
-  // }, []);
-
-  
 
   const handleChange = ((e) => {
     setInput(e.target.value);
@@ -54,76 +44,135 @@ function App() {
   const handleSubmit = (async (e) => {
     e.preventDefault();
 
-    // if (input === "") {
-    //   setInvalidInput(true);
-    // } else {
-    //   const result = await inference.textClassification({
-    //     model: model,
-    //     inputs: input,
-    //   });
+    if (input === "") {
+      setInvalidInput(true);
+    } else {
 
-    console.log("input: ", input);
-    const url = 'http://localhost:8000/predict/';
+      setInvalidInput(false);
+      setLoadingScore(true);
 
-    try {
+      
 
-      const data = {
-        text: input,
-      };
+      console.log("input: ", input);
+      const url = 'http://localhost:8000/predict/';
 
-      const response = await axios.post(url, data);
+      try {
 
-      console.log("Response data: ", response.data);
+        // Replace all quotation marks in case they interfere with string
+        setInput(input.replaceAll('"',''));
+        setInput(input.replaceAll("'", ""));
 
-    } catch (err) {
-      console.error("Error was: ", err);
+        const data = {
+          text: input,
+        };
+
+        const response = await axios.post(url, data);
+
+        let score = (response.data)[0][0].score * 5;
+
+        // Score can't leave -5 to 5 range
+        if (score > 5.0) {
+          score = 5.0;
+        } else if (score < -5.0) {
+          score = -5.0;
+        }
+
+        // Set the bias score
+        setBiasScore(score.toFixed(2));
+
+        // Set label value from score
+        if (score >= -5.0 && score < -3.0) {
+          setBiasLabel("Further Left");
+        } else if (score >= -3.0 && score < -1.0) {
+          setBiasLabel("Left");
+        } else if (score >= -1.0 && score <= 1.0) {
+          setBiasLabel("Center")
+        } else if (score > 1.0 && score <= 3.0) {
+          setBiasLabel("Right");
+        } else if (score > 3.0 && score <= 5.0) {
+          setBiasLabel("Further Right");
+        }
+
+        setLoadingScore(false);
+
+        console.log("Response data: ", (response.data)[0][0].score);
+
+      } catch (err) {
+        console.error("Error was: ", err);
+      }
     }
-    
 
-    
-
-    
-    // const classifier = await pipeline('text-classification', 'C:/Users/ahadb/Desktop/bias_data_model_results_6_best_model_onnx');
-    
-    // const tokenizer_kwargs = {'padding':true,'truncation':true,'max_length':512}
-    // let result = await(classifier("Hello, this is an example"));
-
-    // console.log("result: ", result.toString());
   });
 
   return (
     <Flex w={"100vw"} h={"100vh"} flexDir={"column"} alignItems={"center"} bgColor={"#FFFFFB"}>
  
-      <Flex  w={"100%"} h={"12%"} flexDir={"row"} alignItems={"center"} justifyContent={"space-between"} p={"2%"} borderBottom={"1px solid"} borderColor={"black"}> {/* Header Box */}
-        <Heading as='h1' size={"lg"} color={"green.500"}>Political Bias Checker</Heading>
-        <HStack w={"12%"} h={"80%"} justifyContent={"space-between"}>
-          <Link fontSize={"xl"} href='https://www.wikipedia.com' isExternal>Github</Link>
-          <Link href="https://www.ahadbashir.com" isExternal><Image h={"8vh"} objectFit={"cover"}  src={process.env.PUBLIC_URL + 'Ahad Logo.png '}/></Link>
+      <Flex  w={"100%"} h={"12%"} flexDir={"row"} alignItems={"center"} justifyContent={"space-between"} p={["3%", null, null, "2%"]} borderBottom={"1px solid"} borderColor={"black"} marginBottom={["2%", null, null, "1%"]}> {/* Header Box */}
+        <Heading as='h1' size={["md", null, null, "lg"]} color={"green.500"}>Political Bias Checker</Heading>
+        <HStack w={"12%"} h={"80%"} justifyContent={["space-between"]} display={["none", null, null, "flex"]}>
+          <Link fontSize={["md", null, null, "xl"]} href='https://www.wikipedia.com' isExternal>Github</Link>
+          <Link href="https://www.ahadbashir.com" isExternal><Image h={["2vh", null, null, "8vh"]} objectFit={"cover"}  src={process.env.PUBLIC_URL + 'Ahad Logo.png '}/></Link>
         </HStack>
-        
+        <IconButton 
+              aria-label='Open Menu'
+              icon={<HamburgerIcon />}
+              display={["flex", 0, 0, "none"]}
+              onClick={onOpen}
+            />
       </Flex>
 
-      <Flex w={"70%"} h={"90%"} flexDir={"column"} alignItems={"center"}> {/* Content Box */}
-        <Flex w={"100%"} h={"20%"} flexDir={"row"} alignItems={"center"}>
-          <Text fontSize={"xl"} noOfLines={3}>
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader></DrawerHeader>
+          <DrawerCloseButton />
+          <DrawerBody h={"100vh"}>
+            <Flex flexDir={"column"} h={"30vh"} fontWeight={300} fontSize={"3xl"} justifyContent={"space-around"}>
+              <Link fontSize={["3xl"]} href='https://www.wikipedia.com' isExternal>Github</Link>
+              <Link href="https://www.ahadbashir.com" isExternal><Image h={["10vh", null, null, "8vh"]} objectFit={"cover"}  src={process.env.PUBLIC_URL + 'Ahad Logo.png '}/></Link>
+            </Flex>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      <Flex w={["90%", null, null, "70%"]} h={"90%"} flexDir={"column"} alignItems={"center"}> {/* Content Box */}
+        <Flex w={"100%"} h={"20%"} flexDir={"row"} alignItems={"center"} marginBottom={["2%", null, null, "1%"]}>
+          <Text fontSize={["sm", null, null, "xl"]} noOfLines={[7, null, null, 3]}>
             <Text as={"strong"}>Political Bias Checker</Text> uses an AI model trained on 700,000+ (mostly 
             American) news articles to determine the political bias 
-            of a given piece of text. This model was made possible thanks to 
+            of a submitted piece of text. This model was made possible thanks to 
             the <Link fontWeight={700} href='https://arxiv.org/abs/2203.05659' isExternal>NELA-GT-2022→</Link>
             &nbsp;dataset created by Maurício Gruppi, Benjamin D. Horne, and Sibel Adalı, as well as&nbsp;
             <Link fontWeight={700} href='https://www.allsides.com/' isExternal>AllSides→</Link>.
           </Text>
         </Flex>
+
+
         
 
         <Flex w={"100%"} h={"80%"} flexDir={"column"} alignItems={"center"}> {/* Results + Input Box */}
-          <Flex w={"100%"} h={"10%"} flexDir={"column"} alignItems={"center"}> {/* Results Box */}
 
+          {biasLabel ? 
+          <Flex w={"100%"} h={"35%"} flexDir={"column"} alignItems={"center"} boxShadow="sm" borderRadius="xl" border={"1px solid"} bgColor={"white"} p={"2%"} marginBottom={["2%", null, null, "1%"]}> {/* Results Box */}
+            {!loadingScore ? <Box><Heading as='h3' size={['xs', null, null, 'md']}>This text seems to lean (Further Left / Left / Center / Right / Further Right):</Heading>
+            <Text fontSize={['sm', null, null, 'lg']} m={"1%"}>{biasLabel}</Text>
+            <Heading as='h3' size={['xs', null, null, 'md']}>On a scale from -5 to 5 (-5: furthest left, 0: neutral, 5: furthest right), this text received a score of:</Heading>
+            <Text fontSize={['sm', null, null, 'lg']} m={"1%"}>{biasScore}</Text></Box> : <Spinner />}
+            
           </Flex>
+
+          : <Flex w={"100%"} h={"30%"} flexDir={"column"} alignItems={"center"} p={"2%"} bgColor={"#FFFFFB"} marginBottom={"1%"} border={"1px solid"} borderColor={"#FFFFFB"}></Flex>}
+          
           <FormControl  w={"100%"} h={"90%"} flexDir={"column"} alignItems={"center"}>
             <Flex w={"100%"} h={"100%"} flexDir={"column"} alignItems={"center"}>
 
-              <Textarea onChange={handleChange} 
+              <Textarea onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }} 
                 w={"100%"} h={"70%"} 
                 flexDir={"column"} 
                 alignItems={"center"}  
@@ -133,7 +182,7 @@ function App() {
                 fontSize={"lg"}
               />
 
-              <Button type='submit' w={"25%"} h={"15%"} colorScheme={'green'} fontSize={"2xl"} marginTop={"3%"} onClick={handleSubmit}>
+              <Button type='submit' w={["100%", null, null, "25%"]} h={"15%"} colorScheme={'green'} fontSize={"2xl"} marginTop={"2%"} onClick={handleSubmit}>
                 Submit
               </Button>
             </Flex>
