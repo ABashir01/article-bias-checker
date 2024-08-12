@@ -2,3 +2,4 @@ Django==5.1
 django_environ==0.11.2
 transformers==4.43.4
 django-cors-headers==4.4.0
+torch==2.4.0
