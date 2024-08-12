@@ -55,7 +55,6 @@ function App() {
 
       console.log("input: ", input);
       const url = process.env.REACT_APP_API_URL;
-      console.log(url);
 
       try {
 
@@ -69,7 +68,7 @@ function App() {
 
         const response = await axios.post(url, data);
 
-        let score = (response.data)[0][0].score * 5;
+        let score = response.data * 5;
 
         // Score can't leave -5 to 5 range
         if (score > 5.0) {
@@ -96,7 +95,7 @@ function App() {
 
         setLoadingScore(false);
 
-        console.log("Response data: ", (response.data)[0][0].score);
+        console.log("Response data: ", response.data);
 
       } catch (err) {
         console.error("Error was: ", err);
@@ -153,11 +152,11 @@ function App() {
 
         <Flex w={"100%"} h={"80%"} flexDir={"column"} alignItems={"center"}> {/* Results + Input Box */}
 
-          {biasLabel ? 
+          {loadingScore || biasLabel ? 
           <Flex w={"100%"} h={"35%"} flexDir={"column"} alignItems={"center"} boxShadow="sm" borderRadius="xl" border={"1px solid"} bgColor={"white"} p={"2%"} marginBottom={["2%", null, null, "1%"]}> {/* Results Box */}
             {!loadingScore ? <Box><Heading as='h3' size={['xs', null, null, 'md']}>This text seems to lean (Further Left / Left / Center / Right / Further Right):</Heading>
             <Text fontSize={['sm', null, null, 'lg']} m={"1%"}>{biasLabel}</Text>
-            <Heading as='h3' size={['xs', null, null, 'md']}>On a scale from -5 to 5 (-5: furthest left, 0: neutral, 5: furthest right), this text received a score of:</Heading>
+            <Heading as='h3' size={['xs', null, null, 'md']}>On a scale from -5 to 5 (-5: furthest left / 0: neutral / 5: furthest right), this text received a score of:</Heading>
             <Text fontSize={['sm', null, null, 'lg']} m={"1%"}>{biasScore}</Text></Box> : <Spinner />}
             
           </Flex>
@@ -180,7 +179,7 @@ function App() {
                 bgColor={"white"} 
                 borderColor={"black"} 
                 focusBorderColor='green.500'
-                fontSize={"lg"}
+                fontSize={["sm", null, null, "lg"]}
               />
 
               <Button type='submit' w={["100%", null, null, "25%"]} h={"15%"} colorScheme={'green'} fontSize={"2xl"} marginTop={"2%"} onClick={handleSubmit}>
