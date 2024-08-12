@@ -1,12 +1,10 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-import transformers
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-pipe = transformers.pipeline("text-classification", 
-                             model="AhadB/bias-detector", 
-                             tokenizer="AhadB/bias-detector", 
-                             return_all_scores=True)
+model = AutoModelForSequenceClassification.from_pretrained("AhadB/bias-detector", num_labels=1)
+tokenizer = AutoTokenizer.from_pretrained("AhadB/bias-detector")
 
 tokenizer_kwargs = {'padding': True, 'truncation': True, 'max_length': 512}
 
@@ -20,9 +18,11 @@ def predict(request):
             if not text:
                 return JsonResponse({'error': 'No text provided'}, status=400)
 
-            # Use the model pipeline to make predictions
-            result = pipe(text, **tokenizer_kwargs)
-            return JsonResponse(result, safe=False)
+            tokenized_text = tokenizer(text, padding="max_length", truncation=True, return_tensors="pt")
+            output = model(**tokenized_text)
+            predicted_label = output.logits.item()
+
+            return JsonResponse(predicted_label, safe=False)
 
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {e}'}, status=500)

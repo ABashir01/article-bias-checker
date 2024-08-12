@@ -55,6 +55,7 @@ function App() {
 
       console.log("input: ", input);
       const url = process.env.REACT_APP_API_URL;
+      console.log(url);
 
       try {
 
