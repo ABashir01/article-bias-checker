@@ -54,7 +54,7 @@ function App() {
       
 
       console.log("input: ", input);
-      const url = 'http://localhost:8000/predict/';
+      const url = process.env.REACT_APP_API_URL;
 
       try {
 
@@ -110,7 +110,7 @@ function App() {
       <Flex  w={"100%"} h={"12%"} flexDir={"row"} alignItems={"center"} justifyContent={"space-between"} p={["3%", null, null, "2%"]} borderBottom={"1px solid"} borderColor={"black"} marginBottom={["2%", null, null, "1%"]}> {/* Header Box */}
         <Heading as='h1' size={["md", null, null, "lg"]} color={"green.500"}>Political Bias Checker</Heading>
         <HStack w={"12%"} h={"80%"} justifyContent={["space-between"]} display={["none", null, null, "flex"]}>
-          <Link fontSize={["md", null, null, "xl"]} href='https://www.wikipedia.com' isExternal>Github</Link>
+          <Link fontSize={["md", null, null, "xl"]} href='https://github.com/ABashir01/article-bias-checker' isExternal>Github</Link>
           <Link href="https://www.ahadbashir.com" isExternal><Image h={["2vh", null, null, "8vh"]} objectFit={"cover"}  src={process.env.PUBLIC_URL + 'Ahad Logo.png '}/></Link>
         </HStack>
         <IconButton 
