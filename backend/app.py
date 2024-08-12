@@ -16,22 +16,35 @@ tokenizer_kwargs = {'padding': True, 'truncation': True, 'max_length': 512}
 
 @app.route('/hello')
 def hello():
+    print("saying hello")
     return "Hello"
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    print("Beginning predict")
     if request.method == 'POST':
         try:
+            print("Entering try method")
             # Parse JSON request body
             data = request.get_json()
             text = data.get('text')
 
+            print("Received text")
+
             if not text:
                 return jsonify({'error': 'No text provided'}), 400
 
+            print("Text was real")
+
             tokenized_text = tokenizer(text, padding="max_length", truncation=True, return_tensors="pt")
+            print("Tokenized the text")
+
             output = model(**tokenized_text)
+            print("Generated output")
+
             predicted_label = output.logits.item()
+            print("received the label")
+
 
             # Return prediction as JSON
             return jsonify(predicted_label)
