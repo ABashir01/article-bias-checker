@@ -1,3 +1,6 @@
+import {useState, useEffect} from 'react';
+import axios from 'axios';
+
 import {
   Box,
   Flex,
@@ -12,30 +15,35 @@ import {
   Image
 } from '@chakra-ui/react'
 import { pipeline, env } from '@xenova/transformers';
+import { HfInference } from '@huggingface/inference';
 
-import {useState, useEffect} from 'react';
 
 function App() {
 
   const [input, setInput] = useState('');
   const [classifier, setClassifier] = useState(null);
+  const [invalidInput, setInvalidInput] = useState(false);
+
+  const inference = new HfInference(process.env.REACT_APP_TOKEN);
+  const model = "AhadB/bias-detector";
+
 
   // Initialize the classifier once on component mount
-  useEffect(() => {
-    async function initializePipeline() {
-      try {
-        env.allowLocalModels = false;
-        env.useBrowserCache = false;
+  // useEffect(() => {
+  //   async function initializePipeline() {
+  //     try {
+  //       env.allowLocalModels = false;
+  //       env.useBrowserCache = false;
 
-        let loadedClassifier = await pipeline('text-classification', 'google-bert/bert-base-uncased');
-        loadedClassifier = loadedClassifier.json();
-        setClassifier(loadedClassifier);
-      } catch (error) {
-        console.error('Error initializing pipeline:', error);
-      }
-    }
-    initializePipeline();
-  }, []);
+  //       let loadedClassifier = await pipeline('text-classification', 'google-bert/bert-base-uncased');
+  //       loadedClassifier = loadedClassifier.json();
+  //       setClassifier(loadedClassifier);
+  //     } catch (error) {
+  //       console.error('Error initializing pipeline:', error);
+  //     }
+  //   }
+  //   initializePipeline();
+  // }, []);
 
   
 
@@ -46,7 +54,36 @@ function App() {
   const handleSubmit = (async (e) => {
     e.preventDefault();
 
-    // const classifier = await pipeline('text-classification', 'AhadB/bias-detector');
+    // if (input === "") {
+    //   setInvalidInput(true);
+    // } else {
+    //   const result = await inference.textClassification({
+    //     model: model,
+    //     inputs: input,
+    //   });
+
+    console.log("input: ", input);
+    const url = 'http://localhost:8000/predict/';
+
+    try {
+
+      const data = {
+        text: input,
+      };
+
+      const response = await axios.post(url, data);
+
+      console.log("Response data: ", response.data);
+
+    } catch (err) {
+      console.error("Error was: ", err);
+    }
+    
+
+    
+
+    
+    // const classifier = await pipeline('text-classification', 'C:/Users/ahadb/Desktop/bias_data_model_results_6_best_model_onnx');
     
     // const tokenizer_kwargs = {'padding':true,'truncation':true,'max_length':512}
     // let result = await(classifier("Hello, this is an example"));
