@@ -10,7 +10,7 @@ The motivation for this was to create a text classifier that was able to disting
  - React.js
  - Python (Flask)
  - Pytorch (Transformers)
- - 
+
 ### Dependencies
 
 Npm and pip are required. Run 'npm install' in the  'frontend' to install the dependencies. Run 'pip install -r requirements.txt' in the backend to install dependencies.
