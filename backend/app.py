@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
+
+import torch
+torch.set_num_threads(1)
 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-import torch
 
 import logging
 
@@ -27,6 +29,7 @@ def predict():
     if request.method == 'POST':
         try:
             app.logger.info("Entering try method")
+            
             # Parse JSON request body
             data = request.get_json()
             text = data.get('text')
