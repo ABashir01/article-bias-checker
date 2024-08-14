@@ -1,6 +1,6 @@
 # Article Bias Checker
 
-A website that can give you an AI-estimate of the political bias of a text. Located at [https://biascheck.netlify.app/](https://biascheck.netlify.app/).
+A website that can give you an AI-estimate of the political bias of a text. Located at [https://biascheck.xyz/](https://biascheck.xyz/).
 
 ## Description
 
