@@ -19,3 +19,4 @@ Npm and pip are required. Run 'npm install' in the  'frontend' to install the de
 
 * To run the backend, navigate to the backend directory, then run "python app.py"
 * To run the frontend, navigate to the frontend directory, then run "npm run start"
+* The training script can just be ran as a python file if you have a dataset that maps text to a "bias score"
