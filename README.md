@@ -14,7 +14,7 @@ Gruppi, M., Horne, B. D., & Adalı, S. (2023). NELA-GT-2022: A Large Multi-Label
 [https://www.allsides.com](https://www.allsides.com)
 ## Description
 
-The motivation for this was to create a text classifier that was able to distinguish the political bias of a given piece of text. It was fine-tuned on 700,000+ political articles which were all labeled based on AllSides's political bias ratings of the given news organization. The pretrained transformer that was fine-tuned for this task was Google's Bert (specifically, bert-base-uncased from the Hugging Face Hub). 
+The motivation for this was to create a text classifier that was able to distinguish the political bias of a given piece of text. It was fine-tuned on 700,000+ political articles which were all labeled based on AllSides's political bias ratings of the given news organization. The pretrained transformer that was fine-tuned for this task was Google's Bert (specifically, bert-base-uncased from the Hugging Face Hub). The fine-tuned model is now available at [https://huggingface.co/AhadB/bias-detector](https://huggingface.co/AhadB/bias-detector) 
 
 **NOTE: I didn't include the data here because it utilized text from the NELA-GT-2022 dataset which I promised to not share**
 
